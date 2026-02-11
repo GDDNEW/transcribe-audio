@@ -199,6 +199,23 @@ If the file already exists, append a number: `meeting-recording-2.md`
 
 Mark the save todo as `completed`. Tell the user the transcript is done and where the file was saved.
 
+## Model location reference
+
+The transcription models are stored in the standard Hugging Face cache directory. This is where the CLI tools download to and read from automatically.
+
+| Platform | Model | Path |
+|----------|-------|------|
+| macOS (Apple Silicon) | Parakeet-TDT-0.6b-v3 | `~/.cache/huggingface/hub/models--mlx-community--parakeet-tdt-0.6b-v3/` |
+| Windows/Linux | Whisper large-v3 | `~/.cache/huggingface/hub/models--Systran--faster-whisper-large-v3/` |
+
+- **Size:** ~2.5 GB on disk
+- **Downloaded automatically** on first transcription run
+- **Cached permanently** — only downloads once, then reused for all future transcriptions
+- **To re-download:** Delete the model directory and run a transcription again
+- **To check if present:** Look for a `snapshots/` subdirectory inside the model path
+
+If the user asks where the model is, or if there are issues with the model, reference this table.
+
 ## Edge cases
 
 - **Video files:** Works fine — both tools extract audio via ffmpeg automatically

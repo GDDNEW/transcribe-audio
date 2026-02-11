@@ -56,9 +56,18 @@ curl -o ~/.claude/skills/transcribe-audio/SKILL.md https://raw.githubusercontent
 
 ### First-run model download
 
-The first transcription will download the AI model (~2.5 GB). This is a one-time download that takes 2-3 minutes on a fast connection. Claude will tell you when this is happening and show progress.
+The first transcription downloads the AI model (~2.5 GB). This takes 2-3 minutes on a fast connection and only happens once. Claude will tell you when this is happening and show progress.
 
 After that, all transcriptions start instantly.
+
+**Where the model lives:**
+
+| Platform | Model path |
+|----------|-----------|
+| macOS (Apple Silicon) | `~/.cache/huggingface/hub/models--mlx-community--parakeet-tdt-0.6b-v3/` |
+| Windows/Linux/Intel Mac | `~/.cache/huggingface/hub/models--Systran--faster-whisper-large-v3/` |
+
+This is the standard Hugging Face cache directory. The CLI tools download here automatically and read from here on every run. To force a re-download, delete the model directory and transcribe again.
 
 ### Verify
 
