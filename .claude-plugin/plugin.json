@@ -1,0 +1,11 @@
+{
+  "name": "transcribe-audio",
+  "version": "1.0.0",
+  "description": "Local audio transcription using on-device AI. Transcribes audio/video files to clean Markdown with timestamps.",
+  "author": {
+    "name": "GDDNEW"
+  },
+  "repository": "https://github.com/GDDNEW/transcribe-audio",
+  "license": "MIT",
+  "keywords": ["audio", "transcription", "speech-to-text", "parakeet", "whisper"]
+}
