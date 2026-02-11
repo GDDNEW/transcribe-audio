@@ -28,7 +28,7 @@ The first transcription downloads a 2.5 GB model to `~/.cache/huggingface/` (one
 Clone this repo and symlink the skill into your Claude Code skills directory:
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/transcribe-audio.git ~/transcribe-audio
+git clone https://github.com/GDDNEW/transcribe-audio.git ~/transcribe-audio
 mkdir -p ~/.claude/skills
 ln -sf ~/transcribe-audio/skills/transcribe-audio ~/.claude/skills/transcribe-audio
 ```
