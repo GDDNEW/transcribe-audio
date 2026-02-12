@@ -54,6 +54,8 @@ mkdir -p ~/.claude/skills/transcribe-audio
 curl -o ~/.claude/skills/transcribe-audio/SKILL.md https://raw.githubusercontent.com/GDDNEW/transcribe-audio/main/skills/transcribe-audio/SKILL.md
 ```
 
+> **Note:** Option A (clone) is recommended because it includes the progress sidecar script (`transcribe-progress.sh`) that enables live progress updates during transcription. Option B works but won't show progress — it will just run the transcription and wait.
+
 ### First-run model download
 
 The first transcription downloads the AI model (~2.5 GB). This takes 2-3 minutes on a fast connection and only happens once. Claude will tell you when this is happening and show progress.
@@ -95,7 +97,17 @@ Can you transcribe this? /path/to/lecture.mp3
 What's in this audio file? interview.wav
 ```
 
-Claude shows a progress checklist as it works through each phase: checking dependencies, transcribing, reading output, cleaning up, and saving.
+Claude shows a progress checklist and **live progress updates** as it works. During transcription, you'll see estimated percentage, chunk progress, and time remaining — updated every few seconds.
+
+### Live progress
+
+The plugin includes a progress sidecar script (`transcribe-progress.sh`) that runs alongside the transcription and reports estimated progress. During a long transcription you'll see updates like:
+
+```
+Transcribing... 48% — chunk ~14/29, ~1m5s left
+Transcribing... 77% — chunk ~23/29, ~28s left
+Transcribing... 95% — chunk ~29/29, almost done...
+```
 
 ### Output
 

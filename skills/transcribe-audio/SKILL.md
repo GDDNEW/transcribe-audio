@@ -93,35 +93,102 @@ Now create the TodoWrite list — include the "Download transcription model" ste
 
 Mark todo #1 as `completed`.
 
-## Step 2: Transcribe (includes model download if needed)
+## Step 2: Transcribe with live progress
 
 If the model needs downloading, mark the download todo as `in_progress` first. Tell the user: "Downloading transcription model (~2.5 GB) — one-time download..."
 
-The model downloads automatically when the transcription command runs. Once the command completes, mark the download todo as `completed` and then mark the transcription todo as `completed`.
+The model downloads automatically when the transcription command runs.
 
-If the model is already downloaded, just mark the transcription todo as `in_progress`. Tell the user the estimated duration (e.g., "Transcribing ~57 minutes of audio — should take about a minute...").
+### Get the audio duration first
 
-First, clean and create the output directory:
+```bash
+ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "<filepath>"
+```
+
+Report this to the user (e.g., "Audio is 57 minutes long").
+
+### Clean and create output directory
 
 ```bash
 rm -rf /tmp/transcribe-output && mkdir -p /tmp/transcribe-output
 ```
 
-Then run the transcription:
+### Locate the progress wrapper script
+
+The progress wrapper is at `~/transcribe-audio/transcribe-progress.sh` (part of this plugin). Find the script:
+
+```bash
+SCRIPT="$HOME/transcribe-audio/transcribe-progress.sh"
+[ -f "$SCRIPT" ] && echo "SCRIPT_FOUND" || echo "SCRIPT_MISSING"
+```
+
+If `SCRIPT_MISSING`, fall back to running the transcription directly without progress (see legacy commands below).
+
+### Run transcription with live progress
+
+Mark the transcription todo as `in_progress`. Tell the user: "Transcribing — I'll show progress as it runs."
+
+**Step A — Start the progress sidecar (background).** This lightweight script estimates progress and writes to a file. Run it in the background using Bash:
+
+```bash
+bash "$HOME/transcribe-audio/transcribe-progress.sh" "<filepath>" /tmp/transcribe-output parakeet-mlx &
+```
+(Use `faster-whisper` as the third argument on Windows/Linux.)
+
+**Step B — Start the transcription (background).** Run this as a separate background Bash command using `run_in_background: true`. This keeps the transcription at full CPU priority:
+
+**macOS:**
+```bash
+parakeet-mlx "<filepath>" --output-format srt --output-dir /tmp/transcribe-output && touch /tmp/transcribe-output/.done
+```
+
+**Windows/Linux:**
+```bash
+faster-whisper "<filepath>" --output_format srt --output_dir /tmp/transcribe-output --model large-v3 && touch /tmp/transcribe-output/.done
+```
+
+For files over 2 hours on macOS, add `--local-attention` to the parakeet-mlx command.
+
+**Step C — Poll progress.** After launching both, poll the progress file every 8-12 seconds. Report each update to the user:
+
+```bash
+cat /tmp/transcribe-output/progress.txt
+```
+
+The progress file format is: `STATUS | ELAPSEDs | EST_TOTALs | PCT% | MESSAGE`
+
+Example:
+```
+RUNNING | 32s | 125s | 25% | 57m32s audio — chunk ~7/29, ~1m33s left
+```
+
+**After each poll, update the user with the message.** For example:
+> Transcribing... 25% — chunk ~7/29, ~1m33s left
+
+When status is `DONE`:
+- If the model was being downloaded, mark the download todo as `completed`
+- Mark the transcription todo as `completed`
+- Tell the user the total time taken
+
+When status is `FAILED`:
+- Show the error message to the user
+- Stop and ask how they want to proceed
+
+**Important:** The sidecar auto-exits when it detects the SRT file or `.done` marker. No cleanup needed.
+
+### Legacy commands (fallback if script not found)
+
+If the progress script is missing, run directly:
 
 **macOS:**
 ```bash
 parakeet-mlx "<filepath>" --output-format srt --output-dir /tmp/transcribe-output
 ```
 
-For files over 2 hours, add `--local-attention` to reduce memory usage.
-
 **Windows/Linux:**
 ```bash
 faster-whisper "<filepath>" --output_format srt --output_dir /tmp/transcribe-output --model large-v3
 ```
-
-For NVIDIA GPU acceleration, faster-whisper uses CUDA automatically if available. CPU works but is slower.
 
 Mark the transcription todo as `completed`.
 
